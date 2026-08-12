@@ -20,7 +20,6 @@ const brl = (v) => `R$ ${v.toFixed(2).replace('.', ',')}`;
 // ==========================================
 function calculateSuggPrice(cost, margin, daysToExpiry, category) {
   let basePrice = cost / (1 - (margin / 100));
-  // Regra de Vencimento: Perecíveis perto de vencer (< 3 dias) sugerem -20%
   if (daysToExpiry <= 3 && ['Açougue', 'Laticínios', 'Hortifrúti'].includes(category)) {
     return basePrice * 0.8;
   }
@@ -44,7 +43,7 @@ function evaluateProduct(p) {
 // ==========================================
 function renderDashboardTable() {
   const tbody = document.getElementById('dashboard-table-body');
-  if (!tbody) return; // Só executa se estiver no index.html
+  if (!tbody) return;
 
   const searchQuery = document.getElementById('search')?.value.toLowerCase() || '';
   const filtered = products.filter(p => p.name.toLowerCase().includes(searchQuery) || p.ean.includes(searchQuery));
@@ -55,7 +54,7 @@ function renderDashboardTable() {
     const isDiscount = p.priceSugg < p.priceCurr;
     
     let warningBadge = p.daysToExpiry < 10 
-      ? `<div class="text-[10px] text-destructive-theme font-bold mt-1">⚠ Bloquear Reposição (Gôndola Cheia)</div>` 
+      ? `<div class="text-[10px] text-destructive-theme font-bold mt-1">⚠ Bloquear Reposição</div>` 
       : '';
 
     return `<tr class="transition hover:bg-secondary/60 border-b border-theme">
@@ -84,7 +83,7 @@ function renderDashboardTable() {
 
 function renderProductsTable() {
   const tbody = document.getElementById('products-table-body');
-  if (!tbody) return; // Só executa se estiver no produtos.html
+  if (!tbody) return;
 
   const searchQuery = document.getElementById('search')?.value.toLowerCase() || '';
   const filtered = products.filter(p => p.name.toLowerCase().includes(searchQuery) || p.ean.includes(searchQuery));
@@ -119,7 +118,7 @@ function renderCharts() {
   const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
   const textColor = isDark ? '#94a3b8' : '#6b7d73';
 
-  // 1. Gráfico de Margem (Apenas na Dashboard)
+  // Gráfico Dashboard
   const ctxM = document.getElementById('marginChart');
   if (ctxM) {
     if (marginChartInstance) marginChartInstance.destroy();
@@ -154,17 +153,15 @@ function renderCharts() {
     });
   }
 
-  // 2. Gráfico de Analytics (Apenas na aba Analytics)
+  // Gráfico Analytics
   const ctxA = document.getElementById('analyticsChart');
   if (ctxA) {
     if (analyticsChartInstance) analyticsChartInstance.destroy();
-    
-    // Ordena produtos por proximidade de validade
     const sortedProducts = [...products].sort((a,b) => a.daysToExpiry - b.daysToExpiry);
     const barColors = sortedProducts.map(p => {
-        if(p.daysToExpiry < 10) return '#c0392b'; // Vermelho
-        if(p.daysToExpiry <= 30) return '#f9a825'; // Amarelo
-        return '#2e8b57'; // Verde
+        if(p.daysToExpiry < 10) return '#c0392b';
+        if(p.daysToExpiry <= 30) return '#f9a825';
+        return '#2e8b57';
     });
 
     analyticsChartInstance = new Chart(ctxA, {
@@ -172,7 +169,7 @@ function renderCharts() {
       data: {
         labels: sortedProducts.map(p => p.name.substring(0, 15) + '...'),
         datasets: [{
-          label: 'Giro Mensal (Unidades de Venda)',
+          label: 'Giro Mensal',
           data: sortedProducts.map(p => p.salesGiro),
           backgroundColor: barColors,
           borderRadius: 6
@@ -182,7 +179,7 @@ function renderCharts() {
         responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { afterLabel: (ctx) => `Validade restante: ${sortedProducts[ctx.dataIndex].daysToExpiry} dias` } }
+          tooltip: { callbacks: { afterLabel: (ctx) => `Validade: ${sortedProducts[ctx.dataIndex].daysToExpiry} dias` } }
         },
         scales: {
           x: { ticks: { color: textColor }, grid: { display: false } },
@@ -194,11 +191,11 @@ function renderCharts() {
 }
 
 // ==========================================
-// 5. AÇÕES, EVENTOS E NOTIFICAÇÕES
+// 5. AÇÕES DO SISTEMA E CRUD
 // ==========================================
 function showNotice(msg) {
   const el = document.getElementById('notice');
-  if(!el) { alert(msg); return; } // Fallback se o toast não existir na página
+  if(!el) { alert(msg); return; }
   el.textContent = msg;
   el.classList.remove('hidden');
   setTimeout(() => el.classList.remove('opacity-0'), 10);
@@ -210,10 +207,7 @@ function showNotice(msg) {
 
 function applyOne(id) {
   products = products.map(p => {
-    if(p.id === id) {
-      p.priceSugg = calculateSuggPrice(p.costCurr, p.marginMeta, p.daysToExpiry, p.cat);
-      return { ...p, priceCurr: p.priceSugg, estimatedWeeklyLoss: 0 };
-    }
+    if(p.id === id) return { ...p, priceCurr: calculateSuggPrice(p.costCurr, p.marginMeta, p.daysToExpiry, p.cat), estimatedWeeklyLoss: 0 };
     return p;
   });
   saveProducts();
@@ -222,17 +216,14 @@ function applyOne(id) {
 }
 
 function applyAll() {
-  products = products.map(p => {
-    p.priceSugg = calculateSuggPrice(p.costCurr, p.marginMeta, p.daysToExpiry, p.cat);
-    return { ...p, priceCurr: p.priceSugg, estimatedWeeklyLoss: 0 };
-  });
+  products = products.map(p => ({ ...p, priceCurr: calculateSuggPrice(p.costCurr, p.marginMeta, p.daysToExpiry, p.cat), estimatedWeeklyLoss: 0 }));
   saveProducts();
   renderDashboardTable();
   showNotice('Todos os reajustes foram aplicados (Lote).');
 }
 
 function deleteProduct(id) {
-  if(confirm('Tem certeza que deseja apagar este produto do catálogo?')) {
+  if(confirm('Tem certeza que deseja apagar este produto?')) {
     products = products.filter(p => p.id !== id);
     saveProducts();
     renderProductsTable();
@@ -240,7 +231,6 @@ function deleteProduct(id) {
   }
 }
 
-// Lógica de Modal (Produtos)
 function openModal(id = null) {
   const m = document.getElementById('product-modal');
   if(!m) return;
@@ -298,30 +288,32 @@ document.getElementById('product-form')?.addEventListener('submit', (e) => {
   showNotice(id ? 'Produto atualizado.' : 'Novo produto adicionado.');
 });
 
-// Config Form Prevent Default
-document.getElementById('form-config')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  showNotice('Configurações salvas e conectadas ao Banco Banrisul.');
+// ==========================================
+// 6. TEMA E INICIALIZAÇÃO
+// ==========================================
+function updateThemeIcons(isDark) {
+  document.getElementById('icon-moon')?.classList.toggle('hidden', isDark);
+  document.getElementById('icon-sun')?.classList.toggle('hidden', !isDark);
+}
+
+document.getElementById('theme-toggle')?.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  updateThemeIcons(isDark);
+  if (typeof renderCharts === 'function') renderCharts();
 });
 
-// ==========================================
-// 6. INICIALIZAÇÃO
-// ==========================================
 document.getElementById('search')?.addEventListener('input', () => {
   renderDashboardTable();
   renderProductsTable();
 });
 
-// Dark Mode
-document.getElementById('theme-toggle')?.addEventListener('click', () => {
-  document.documentElement.classList.toggle('dark');
-  if (typeof renderCharts === 'function') renderCharts();
-});
-
-// Ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
+  const isDark = document.documentElement.classList.contains('dark');
+  updateThemeIcons(isDark);
+
   renderDashboardTable();
   renderProductsTable();
-  // Aguarda um milissegundo para garantir que os Canvas HTML carregaram no DOM
   setTimeout(renderCharts, 50); 
 });
