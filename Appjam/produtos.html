@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Produtos — Precifica.IA</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { brand: { deep: '#0f291e' }, success: '#2e8b57', accent: '#f9a825' } } }
+    }
+  </script>
+</head>
+<body class="antialiased flex min-h-screen">
+
+  <!-- Sidebar Compartilhada -->
+  <aside class="hidden md:flex w-64 flex-col justify-between border-r border-theme bg-brand-deep text-brand-fg">
+    <div>
+      <div class="flex h-20 items-center border-b border-white/10 px-4 gap-2">
+        <div class="bg-accent-theme p-1.5 rounded-lg text-accent-fg font-bold">IA</div>
+        <div>
+          <h1 class="text-sm font-bold text-white tracking-wide">Precifica.<span class="text-accent-theme">IA</span></h1>
+        </div>
+      </div>
+      <nav class="p-4 space-y-1.5">
+        <a href="index.html" class="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white">Dashboard</a>
+        <a href="produtos.html" class="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium sidebar-active">Produtos & Preços</a>
+        <a href="analytics.html" class="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white">Analytics de Margem</a>
+        <a href="alertas.html" class="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white">Alertas IPCA</a>
+        <a href="config.html" class="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white">Configurações</a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex flex-1 flex-col h-screen overflow-hidden relative">
+    <header class="z-10 flex min-h-16 items-center justify-between border-b border-theme bg-card px-4 py-2 md:px-6">
+      <h2 class="text-base font-bold">Gestão de Produtos</h2>
+      <div class="relative w-full max-w-xs ml-4">
+        <input id="search" type="text" placeholder="Buscar produto..." class="w-full rounded-xl bg-input-theme py-1.5 px-4 text-xs outline-none" />
+      </div>
+      <button id="theme-toggle" class="ml-4 rounded-xl bg-secondary p-2 text-muted">Mudar Tema</button>
+    </header>
+
+    <main class="flex-1 space-y-6 overflow-y-auto p-4 md:p-6">
+      
+      <!-- Tabela CRUD -->
+      <section class="space-y-4 rounded-2xl border border-theme bg-card p-6">
+        <div class="flex justify-between items-center gap-4">
+          <div>
+            <h3 class="text-lg font-bold">Catálogo Mestre</h3>
+            <p class="text-xs text-muted">Controle o cadastro mestre. A IA define a sugestão de markup automaticamente.</p>
+          </div>
+          <button onclick="openModal()" class="rounded-xl bg-[var(--primary)] px-4 py-2 text-xs font-bold text-white hover:opacity-90">
+            + Adicionar Produto
+          </button>
+        </div>
+        
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-left text-xs min-w-[700px]">
+            <thead class="border-b border-theme uppercase tracking-wider text-muted bg-secondary">
+              <tr>
+                <th class="p-3 font-semibold">Produto / EAN</th>
+                <th class="p-3 font-semibold">Categoria / Meta</th>
+                <th class="p-3 font-semibold">Custo Atual</th>
+                <th class="p-3 font-semibold">Preço Final (PDV)</th>
+                <th class="p-3 font-semibold">Validade</th>
+                <th class="p-3 text-right font-semibold">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body" class="divide-y divide-theme">
+              <!-- Injetado via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Modal Form (Escondido por padrão) -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay">
+      <div class="bg-card w-full max-w-md rounded-2xl shadow-2xl p-6 border border-theme">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-lg" id="modal-title">Adicionar Produto</h3>
+          <button onclick="closeModal()" class="text-muted font-bold hover:text-destructive-theme">X</button>
+        </div>
+        
+        <form id="product-form" class="space-y-4">
+          <input type="hidden" id="form-id" />
+          
+          <div>
+            <label class="block text-xs font-semibold mb-1">Nome do Produto</label>
+            <input type="text" id="form-name" required class="w-full rounded-xl bg-input-theme px-3 py-2 text-xs outline-none" />
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1">EAN</label>
+              <input type="text" id="form-ean" required class="w-full rounded-xl bg-input-theme px-3 py-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Categoria</label>
+              <select id="form-cat" class="w-full rounded-xl bg-input-theme px-3 py-2 text-xs outline-none">
+                <option value="Mercearia">Mercearia</option>
+                <option value="Açougue">Açougue</option>
+                <option value="Laticínios">Laticínios</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1">Custo Unit. (R$)</label>
+              <input type="number" step="0.01" id="form-cost" required class="w-full rounded-xl bg-input-theme px-3 py-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Preço Atual (R$)</label>
+              <input type="number" step="0.01" id="form-price" required class="w-full rounded-xl bg-input-theme px-3 py-2 text-xs outline-none" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1">Dias p/ Vencer</label>
+              <input type="number" id="form-expiry" required class="w-full rounded-xl bg-input-theme px-3 py-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Giro Mensal</label>
+              <input type="number" id="form-giro" required class="w-full rounded-xl bg-input-theme px-3 py-2 text-xs outline-none" />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full rounded-xl bg-primary-theme py-2.5 text-xs font-bold text-primary-fg shadow hover:opacity-90 mt-2">
+            Salvar Produto
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
