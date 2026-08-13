@@ -33,3 +33,11 @@ Sistema de gestão inteligente para precificação no setor varejista. O objetiv
 2. Utilize as credenciais de acesso para testes:
    * **E-mail:** `gestor@supermercado.com.br`
    * **Senha:** `123456`
+
+## Autores
+Projeto desenvolvido por **Amanda Maffini Ruwer, João Vitor Fraga da Rocha e Rafaela Acosta Pereira**.
+
+## Direitos de Uso
+© 2026 Todos os direitos reservados. 
+
+Este repositório é apenas para fins de portfólio e visualização. É proibida a cópia, distribuição, modificação ou uso comercial de qualquer parte deste código sem a autorização expressa dos autores.
