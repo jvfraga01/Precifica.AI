@@ -3,13 +3,17 @@
 // ==========================================
 const currentUser = localStorage.getItem('precifica_user');
 const currentPath = window.location.pathname;
-const isAuthPage = currentPath.includes('login.html') || currentPath.includes('cadastro.html');
+
+// Inclui 'recuperar.html' na lista de páginas públicas (que não exigem login prévio)
+const isAuthPage = currentPath.includes('login.html') || 
+                   currentPath.includes('cadastro.html') || 
+                   currentPath.includes('recuperar.html');
 
 if (!currentUser && !isAuthPage) {
   // Usuário não logado tenta acessar o sistema -> Vai para o login
   window.location.replace('login.html');
 } else if (currentUser && isAuthPage) {
-  // Usuário logado tenta acessar a página de login/cadastro -> Vai para o dashboard
+  // Usuário logado tenta acessar a página de login/cadastro/recuperar -> Vai para o dashboard
   window.location.replace('index.html');
 }
 
