@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recuperar Senha — Precifica.IA</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { brand: { deep: '#0f291e', light: '#1b4332' }, success: '#2e8b57', accent: '#f9a825' } } } }
+  </script>
+</head>
+<body class="antialiased min-h-screen flex items-center justify-center bg-[var(--bg)] text-[var(--fg)] relative">
+
+  <!-- Botão de Tema -->
+  <button id="theme-toggle" type="button" title="Alternar Tema" class="absolute top-6 right-6 rounded-full border border-theme bg-card p-2 text-muted transition hover:bg-secondary shadow-sm">
+    <svg id="icon-moon" class="size-5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    <svg id="icon-sun" class="size-5 hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+  </button>
+
+  <div class="w-full max-w-md p-8 rounded-3xl bg-card border border-theme shadow-2xl mx-4">
+    <div class="flex flex-col items-center mb-6">
+      <img src="logo.png" alt="Precifica AI" class="h-14 object-contain mb-3" />
+      <h2 class="text-2xl font-bold">Recuperação de Acesso</h2>
+      <p class="text-xs text-muted mt-1 text-center">Informe seu e-mail corporativo para redefinir sua senha instantaneamente.</p>
+    </div>
+
+    <form id="recovery-form" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold mb-1.5">E-mail corporativo</label>
+        <input type="email" id="rec-email" required value="gestor@supermercado.com.br" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1.5">Nova Senha</label>
+        <input type="password" id="rec-nova-senha" required placeholder="Digite a nova senha" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+      </div>
+
+      <button type="submit" class="w-full rounded-xl bg-[var(--primary)] py-3 text-sm font-bold text-white shadow-md hover:opacity-90 transition mt-2">
+        Atualizar Senha
+      </button>
+    </form>
+
+    <p class="text-center text-xs text-muted font-medium mt-6">
+      Lembrou a senha? 
+      <a href="login.html" class="font-bold text-accent-theme hover:underline">Voltar para o Login</a>
+    </p>
+  </div>
+
+  <div id="notice" class="fixed bottom-6 left-1/2 z-50 hidden -translate-x-1/2 rounded-lg bg-[var(--fg)] px-6 py-3 text-center text-sm font-semibold text-[var(--bg)] shadow-xl transition-opacity opacity-0"></div>
+  
+  <script>
+    // Lógica local para atualizar a senha sem backend
+    document.getElementById('recovery-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('rec-email').value;
+      const novaSenha = document.getElementById('rec-nova-senha').value;
+      
+      // Salva a nova senha simulada no navegador
+      localStorage.setItem('precifica_pass_' + email, novaSenha);
+
+      const notice = document.getElementById('notice');
+      notice.textContent = "Senha alterada com sucesso! Redirecionando...";
+      notice.classList.remove('hidden');
+      setTimeout(() => notice.classList.remove('opacity-0'), 10);
+
+      setTimeout(() => {
+        window.location.replace('login.html');
+      }, 2000);
+    });
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
