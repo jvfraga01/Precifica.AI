@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro — Precifica.IA</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { brand: { deep: '#0f291e', light: '#1b4332' }, success: '#2e8b57', accent: '#f9a825' } } } }
+  </script>
+</head>
+<body class="antialiased min-h-screen flex items-center justify-center bg-[var(--bg)] text-[var(--fg)] relative py-10">
+
+  <!-- Botão de Tema -->
+  <button id="theme-toggle" type="button" title="Alternar Tema" class="absolute top-6 right-6 rounded-full border border-theme bg-card p-2 text-muted transition hover:bg-secondary shadow-sm">
+    <svg id="icon-moon" class="size-5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    <svg id="icon-sun" class="size-5 hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+  </button>
+
+  <div class="w-full max-w-lg p-8 rounded-3xl bg-card border border-theme shadow-2xl mx-4">
+    <div class="flex flex-col items-center mb-8">
+      <img src="logo.png" alt="Precifica AI" class="h-12 object-contain mb-4" />
+      <h2 class="text-2xl font-bold">Crie sua Conta</h2>
+      <p class="text-sm text-muted mt-1 text-center">Implemente inteligência artificial na precificação do seu supermercado.</p>
+    </div>
+
+    <form id="cadastro-form" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold mb-1.5">Nome Completo</label>
+          <input type="text" id="cad-nome" required placeholder="João Vitor" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1.5">Nome do Supermercado</label>
+          <input type="text" id="cad-loja" required placeholder="Supermercado Gaúcho" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1.5">E-mail corporativo</label>
+        <input type="email" id="cad-email" required placeholder="contato@supermercado.com.br" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold mb-1.5">Crie uma Senha</label>
+          <input type="password" id="cad-senha" required placeholder="••••••••" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1.5">Confirme a Senha</label>
+          <input type="password" id="cad-conf-senha" required placeholder="••••••••" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+        </div>
+      </div>
+
+      <button type="submit" class="w-full rounded-xl bg-accent-theme text-accent-fg py-3 text-sm font-bold shadow-md hover:opacity-90 transition mt-4">
+        Cadastrar e Acessar
+      </button>
+    </form>
+
+    <p class="text-center text-xs text-muted font-medium mt-6">
+      Já possui uma conta ativa? 
+      <a href="login.html" class="font-bold text-[var(--primary)] hover:underline">Faça Login aqui</a>
+    </p>
+  </div>
+
+  <div id="notice" class="fixed bottom-6 left-1/2 z-50 hidden -translate-x-1/2 rounded-lg bg-[var(--fg)] px-6 py-3 text-center text-sm font-semibold text-[var(--bg)] shadow-xl transition-opacity opacity-0"></div>
+  
+  <script src="app.js"></script>
+</body>
+</html>
