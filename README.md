@@ -28,9 +28,8 @@ Sistema de gestão inteligente para precificação no setor varejista. O objetiv
 
 ## Como Utilizar
 
-1. Clone o repositório:
-   ```bash
-   git clone [https://github.com/jvfraga01/Projeto-Appjam.git]
+1. Acesse: 
+   * [Acesse o Precifica.IA](https://jvfraga01.github.io/Projeto-Appjam/)
 2. Abra o projeto no VS Code e utilize a extensão *Live Server* para rodar a aplicação localmente:
    * Clique com o botão direito no arquivo `login.html`.
    * Selecione "Open with Live Server".
