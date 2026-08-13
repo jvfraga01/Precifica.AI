@@ -2,9 +2,9 @@
 // 1. GERENCIAMENTO DE DADOS (LOCALSTORAGE)
 // ==========================================
 const defaultProducts = [
-  { id: 1, ean: "7891000100103", name: "Leite Integral 1L", cat: "Laticínios", costPrev: 3.0, costCurr: 3.45, priceCurr: 4.2, priceSugg: 4.89, marginMeta: 28.0, stock: 120, salesGiro: 450, daysToExpiry: 15, estimatedWeeklyLoss: 310.5 },
-  { id: 2, ean: "7891000200202", name: "Costela Bovina Ripa kg", cat: "Açougue", costPrev: 18.2, costCurr: 19.5, priceCurr: 24.9, priceSugg: 24.0, marginMeta: 35.0, stock: 45, salesGiro: 120, daysToExpiry: 2, estimatedWeeklyLoss: 0 },
-  { id: 3, ean: "7891000300301", name: "Arroz Branco 5kg", cat: "Mercearia", costPrev: 16.5, costCurr: 18.0, priceCurr: 22.5, priceSugg: 25.7, marginMeta: 30.0, stock: 210, salesGiro: 520, daysToExpiry: 180, estimatedWeeklyLoss: 44.5 }
+  { id: 1, ean: "7891000100103", name: "Leite Integral 1L", cat: "Laticínios", costPrev: 3.0, costCurr: 3.45, priceCurr: 4.2, priceSugg: 4.89, marginMeta: 28.0, stock: 120, salesGiro: 450, daysToExpiry: 20, estimatedWeeklyLoss: 0 },
+  { id: 2, ean: "7891000200202", name: "Costela Bovina Ripa kg", cat: "Açougue", costPrev: 18.2, costCurr: 19.5, priceCurr: 24.9, priceSugg: 24.0, marginMeta: 35.0, stock: 45, salesGiro: 120, daysToExpiry: 15, estimatedWeeklyLoss: 0 },
+  { id: 3, ean: "7891000300301", name: "Arroz Branco 5kg", cat: "Mercearia", costPrev: 16.5, costCurr: 18.0, priceCurr: 22.5, priceSugg: 25.7, marginMeta: 30.0, stock: 210, salesGiro: 520, daysToExpiry: 60, estimatedWeeklyLoss: 0 }
 ];
 
 let products = JSON.parse(localStorage.getItem('precifica_db')) || defaultProducts;
@@ -39,11 +39,11 @@ function evaluateProduct(p) {
 }
 
 // ==========================================
-// 3. RENDERIZAÇÃO DAS TABELAS (Atualizado para atualizar os Cards)
+// 3. RENDERIZAÇÃO DAS TABELAS
 // ==========================================
 function renderDashboardTable() {
   const tbody = document.getElementById('dashboard-table-body');
-  if (!tbody) return; // Só executa se estiver no index.html
+  if (!tbody) return;
 
   const searchQuery = document.getElementById('search')?.value.toLowerCase() || '';
   const filtered = products.filter(p => p.name.toLowerCase().includes(searchQuery) || p.ean.includes(searchQuery));
@@ -58,14 +58,12 @@ function renderDashboardTable() {
     const isUpdated = Math.abs(p.priceCurr - p.priceSugg) < 0.05;
     const isDiscount = p.priceSugg < p.priceCurr;
     
-    // Atualiza contadores para os Cards
     if (!isUpdated) pendingCount++;
     if (ev.expStatus === 'Crítico') criticalCount++;
-    if (!isUpdated) totalLoss += p.estimatedWeeklyLoss;
-    scoreSum += ev.score;
+    if (!isUpdated) totalLoss += (p.estimatedWeeklyLoss || 0);
 
     let warningBadge = p.daysToExpiry < 10 
-      ? `<div class="text-[10px] text-destructive-theme font-bold mt-1.5 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Bloquear Reposição (Gôndola Cheia)</div>` 
+      ? `<div class="text-[10px] text-destructive-theme font-bold mt-1.5 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Expira em ${p.daysToExpiry} dias</div>`
       : '';
 
     let priceLabel = isDiscount ? '↓ Sugestão de Desconto (Giro Rápido)' : `Meta: ${p.marginMeta.toFixed(1)}%`;
@@ -89,14 +87,13 @@ function renderDashboardTable() {
       </td>
       <td class="py-4 text-right px-2">
         ${isUpdated 
-          ? `<span class="text-[11px] font-bold text-success flex items-center justify-end gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Aplicado</span>` 
+          ? `<span class="text-[11px] font-bold text-success flex items-center justify-end gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Sincronizado</span>`
           : `<button onclick="applyOne(${p.id})" class="rounded-xl bg-[var(--sidebar)] px-4 py-2.5 text-[11px] font-bold text-white hover:bg-[var(--primary)] transition shadow-sm">Aplicar Sugestão</button>`
         }
       </td>
     </tr>`;
   }).join('');
 
-  // Preenche os 4 Cards com os valores somados e atualizados
   const avgScore = filtered.length > 0 ? (scoreSum / filtered.length).toFixed(1) : '10.0';
   if(document.getElementById('kpi-score')) document.getElementById('kpi-score').innerText = avgScore;
   if(document.getElementById('kpi-pending')) document.getElementById('kpi-pending').innerText = `${pendingCount} Itens`;
@@ -107,6 +104,30 @@ function renderDashboardTable() {
       ? `${pendingCount} produtos fora da margem ou precisando de giro!` 
       : 'Todos os produtos estão otimizados!';
   }
+}
+
+// NOVA FUNÇÃO: Renderizar tabela de produtos (necessária)
+function renderProductsTable() {
+  const tbody = document.getElementById('products-table-body');
+  if (!tbody) return;
+
+  tbody.innerHTML = products.map(p => {
+    const ev = evaluateProduct(p);
+    return `<tr class="border-b border-theme hover:bg-secondary/40 transition">
+      <td class="py-3 px-2 text-sm">${p.name}</td>
+      <td class="py-3 px-2 text-sm text-muted">${p.ean}</td>
+      <td class="py-3 px-2 text-sm">${p.cat}</td>
+      <td class="py-3 px-2 text-sm font-bold">${brl(p.costCurr)}</td>
+      <td class="py-3 px-2 text-sm font-bold">${brl(p.priceCurr)}</td>
+      <td class="py-3 px-2 text-sm">
+        <span class="rounded px-2 py-1 text-[11px] font-bold ${ev.expCls}">${ev.expStatus}</span>
+      </td>
+      <td class="py-3 px-2 text-right">
+        <button onclick="openModal(${p.id})" class="text-blue-500 hover:underline text-[11px] font-bold">Editar</button>
+        <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:underline text-[11px] font-bold ml-2">Apagar</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
 // ==========================================
@@ -120,7 +141,6 @@ function renderCharts() {
   const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
   const textColor = isDark ? '#94a3b8' : '#6b7d73';
 
-  // Gráfico Dashboard
   const ctxM = document.getElementById('marginChart');
   if (ctxM) {
     if (marginChartInstance) marginChartInstance.destroy();
@@ -155,7 +175,6 @@ function renderCharts() {
     });
   }
 
-  // Gráfico Analytics
   const ctxA = document.getElementById('analyticsChart');
   if (ctxA) {
     if (analyticsChartInstance) analyticsChartInstance.destroy();
