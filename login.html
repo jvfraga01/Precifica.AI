@@ -31,11 +31,11 @@
     <form id="login-form" class="space-y-5">
       <div>
         <label class="block text-sm font-bold mb-1.5">E-mail corporativo</label>
-        <input type="email" id="login-email" required placeholder="gestor@supermercado.com.br" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+        <input type="email" id="login-email" required value="gestor@supermercado.com.br" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
       </div>
       <div>
         <label class="block text-sm font-bold mb-1.5">Senha</label>
-        <input type="password" id="login-password" required placeholder="••••••••" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+        <input type="password" id="login-password" required value="123456" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
       </div>
       
       <div class="flex items-center justify-between text-xs">
@@ -58,17 +58,7 @@
   </div>
 
   <div id="notice" class="fixed bottom-6 left-1/2 z-50 hidden -translate-x-1/2 rounded-lg bg-[var(--fg)] px-6 py-3 text-center text-sm font-semibold text-[var(--bg)] shadow-xl transition-opacity opacity-0"></div>
-  <!-- Final do formulário de login -->
-    <button type="submit" class="w-full rounded-xl bg-[var(--primary)] py-3 text-sm font-bold text-white shadow-md hover:opacity-90 transition mt-2">
-      Entrar no Sistema
-    </button>
-  </form>
-
-  <p class="text-center text-xs text-muted font-medium mt-8">
-    Ainda não tem acesso? 
-    <a href="cadastro.html" class="font-bold text-accent-theme hover:underline">Solicite sua conta</a>
-  </p>
-</div>
+  
   <script src="app.js"></script>
 </body>
 </html>
