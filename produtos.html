@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Mantém o tema escuro sem piscar a tela
     if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.classList.add('dark');
     }
@@ -16,7 +15,7 @@
 </head>
 <body class="antialiased flex min-h-screen bg-[var(--bg)] text-[var(--fg)]">
 
-  <!-- Sidebar Lateral -->
+  <!-- Sidebar Lateral com Ícones SVG -->
   <aside class="hidden md:flex w-64 flex-col justify-between border-r border-theme bg-brand-deep text-brand-fg">
     <div>
       <div class="flex h-20 items-center border-b border-white/10 px-4">
@@ -47,7 +46,6 @@
       </nav>
     </div>
     
-    <!-- Usuário Rodapé -->
     <div class="m-4 p-4 rounded-2xl border border-white/10 bg-white/5 text-center">
       <div class="mx-auto flex size-8 items-center justify-center rounded-full bg-accent-theme text-accent-fg text-xs font-bold shadow-md">RS</div>
       <p class="text-xs font-semibold text-white mt-2">Supermercado Gaúcho</p>
@@ -59,10 +57,7 @@
     </div>
   </aside>
 
-  <!-- Área Principal -->
   <div class="flex flex-1 flex-col h-screen overflow-hidden relative">
-    
-    <!-- Cabeçalho (Header) -->
     <header class="z-10 flex min-h-16 items-center justify-between border-b border-theme bg-card px-4 py-3 md:px-6">
       <div class="flex items-center gap-4 flex-1">
         <img src="logo.png" alt="Precifica AI" class="h-10 w-28 shrink-0 object-contain object-left md:hidden" />
