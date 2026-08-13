@@ -354,12 +354,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'index.html';
   });
 
-  // Botões de Sair (Logout) em todas as páginas
-  document.querySelectorAll('#btn-logout').forEach(btn => {
-    btn.addEventListener('click', () => {
-      localStorage.removeItem('precifica_user');
-      window.location.href = 'login.html';
-    });
+  // AÇÃO DO BOTÃO DE SAIR
+  document.getElementById('btn-logout')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.removeItem('precifica_user'); // Remove a sessão do usuário
+    window.location.replace('login.html');     // Joga para a tela de login
+  });
   });
 
   // OUTROS COMPONENTES
