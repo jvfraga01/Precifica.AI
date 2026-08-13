@@ -29,7 +29,7 @@ Sistema de gestão inteligente para precificação no setor varejista. O objetiv
 ## Como Utilizar
 
 1. Acesse: 
-   * [Acesse o Precifica.IA](https://jvfraga01.github.io/Projeto-Appjam/)
+   * [Acesse o Precifica.IA](https://jvfraga01.github.io/Precifica.AI/))
 2. Utilize as credenciais de acesso para testes:
    * **E-mail:** `gestor@supermercado.com.br`
    * **Senha:** `123456`
