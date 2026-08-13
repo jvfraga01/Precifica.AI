@@ -25,7 +25,7 @@
   --card: #151e2e;
   --muted: #94a3b8;
   --border: rgba(255,255,255,0.1);
-  --primary: #a7f3d0;
+  --primary: #26825b;
   --primary-fg: #0b1220;
   --secondary: #1e293b;
   --accent: #f9a825;
@@ -33,7 +33,7 @@
   --destructive: #f87171;
   --sidebar: #151e2e;
   --sidebar-fg: rgba(255,255,255,0.85);
-  --sidebar-primary: #3b82f6;
+  --sidebar-primary: #264739;
   --sidebar-accent: rgba(255,255,255,0.08);
   --input: rgba(255,255,255,0.1);
 }
