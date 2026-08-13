@@ -2,9 +2,51 @@
 // 1. GERENCIAMENTO DE DADOS (LOCALSTORAGE)
 // ==========================================
 const defaultProducts = [
-  { id: 1, ean: "7891000100103", name: "Leite Integral 1L", cat: "Laticínios", costPrev: 3.0, costCurr: 3.45, priceCurr: 4.2, priceSugg: 4.89, marginMeta: 28.0, stock: 120, salesGiro: 450, daysToExpiry: 20, estimatedWeeklyLoss: 0 },
-  { id: 2, ean: "7891000200202", name: "Costela Bovina Ripa kg", cat: "Açougue", costPrev: 18.2, costCurr: 19.5, priceCurr: 24.9, priceSugg: 24.0, marginMeta: 35.0, stock: 45, salesGiro: 120, daysToExpiry: 15, estimatedWeeklyLoss: 0 },
-  { id: 3, ean: "7891000300301", name: "Arroz Branco 5kg", cat: "Mercearia", costPrev: 16.5, costCurr: 18.0, priceCurr: 22.5, priceSugg: 25.7, marginMeta: 30.0, stock: 210, salesGiro: 520, daysToExpiry: 60, estimatedWeeklyLoss: 0 }
+  { 
+    id: 1, 
+    ean: "7891000100103", 
+    name: "Leite Integral 1L", 
+    cat: "Laticínios", 
+    costPrev: 3.0, 
+    costCurr: 3.45, 
+    priceCurr: 4.2, 
+    priceSugg: 4.89, 
+    marginMeta: 28.0, 
+    stock: 120, 
+    salesGiro: 450, 
+    daysToExpiry: 20, 
+    estimatedWeeklyLoss: 0 
+  },
+  { 
+    id: 2, 
+    ean: "7891000200202", 
+    name: "Costela Bovina Ripa kg", 
+    cat: "Açougue", 
+    costPrev: 18.2, 
+    costCurr: 19.5, 
+    priceCurr: 24.9, 
+    priceSugg: 24.0, 
+    marginMeta: 35.0, 
+    stock: 45, 
+    salesGiro: 120, 
+    daysToExpiry: 15, 
+    estimatedWeeklyLoss: 0 
+  },
+  { 
+    id: 3, 
+    ean: "7891000300301", 
+    name: "Arroz Branco 5kg", 
+    cat: "Mercearia", 
+    costPrev: 16.5, 
+    costCurr: 18.0, 
+    priceCurr: 22.5, 
+    priceSugg: 25.7, 
+    marginMeta: 30.0, 
+    stock: 210, 
+    salesGiro: 520, 
+    daysToExpiry: 60, 
+    estimatedWeeklyLoss: 0 
+  }
 ];
 
 let products = JSON.parse(localStorage.getItem('precifica_db')) || defaultProducts;
@@ -32,8 +74,13 @@ function evaluateProduct(p) {
   const costIncrease = p.costPrev > 0 ? ((p.costCurr - p.costPrev) / p.costPrev) * 100 : 0;
   
   let expStatus = 'Saudável', expCls = 'bg-success-theme text-success-theme';
-  if (p.daysToExpiry < 10) { expStatus = 'Crítico'; expCls = 'bg-destructive-theme text-destructive-theme'; } 
-  else if (p.daysToExpiry <= 30) { expStatus = 'Atenção'; expCls = 'bg-warning-theme text-warning-theme'; }
+  if (p.daysToExpiry < 10) { 
+    expStatus = 'Crítico'; 
+    expCls = 'bg-destructive-theme text-destructive-theme'; 
+  } else if (p.daysToExpiry <= 30) { 
+    expStatus = 'Atenção'; 
+    expCls = 'bg-warning-theme text-warning-theme'; 
+  }
 
   return { currentMargin, costIncrease, expStatus, expCls };
 }
@@ -46,12 +93,13 @@ function renderDashboardTable() {
   if (!tbody) return;
 
   const searchQuery = document.getElementById('search')?.value.toLowerCase() || '';
-  const filtered = products.filter(p => p.name.toLowerCase().includes(searchQuery) || p.ean.includes(searchQuery));
+  const filtered = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery) || p.ean.includes(searchQuery)
+  );
 
   let pendingCount = 0;
   let criticalCount = 0;
   let totalLoss = 0;
-  let scoreSum = 0;
 
   tbody.innerHTML = filtered.map(p => {
     const ev = evaluateProduct(p);
@@ -63,10 +111,16 @@ function renderDashboardTable() {
     if (!isUpdated) totalLoss += (p.estimatedWeeklyLoss || 0);
 
     let warningBadge = p.daysToExpiry < 10 
-      ? `<div class="text-[10px] text-destructive-theme font-bold mt-1.5 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Expira em ${p.daysToExpiry} dias</div>`
+      ? `<div class="text-[10px] text-destructive-theme font-bold mt-1.5 flex items-center gap-1">
+           <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+             <circle cx="12" cy="12" r="10"></circle>
+             <line x1="12" y1="8" x2="12" y2="12"></line>
+             <line x1="12" y1="16" x2="12.01" y2="16"></line>
+           </svg> Expira em ${p.daysToExpiry} dias
+         </div>`
       : '';
 
-    let priceLabel = isDiscount ? '↓ Sugestão de Desconto (Giro Rápido)' : `Meta: ${p.marginMeta.toFixed(1)}%`;
+    let priceLabel = isDiscount ? '↓ Sugestão de Desconto' : `Meta: ${p.marginMeta.toFixed(1)}%`;
 
     return `<tr class="transition hover:bg-secondary/60 border-b border-theme">
       <td class="py-4 px-2">
@@ -87,41 +141,45 @@ function renderDashboardTable() {
       </td>
       <td class="py-4 text-right px-2">
         ${isUpdated 
-          ? `<span class="text-[11px] font-bold text-success flex items-center justify-end gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Sincronizado</span>`
+          ? `<span class="text-[11px] font-bold text-success flex items-center justify-end gap-1">
+               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <polyline points="20 6 9 17 4 12"></polyline>
+               </svg> Sincronizado
+             </span>`
           : `<button onclick="applyOne(${p.id})" class="rounded-xl bg-[var(--sidebar)] px-4 py-2.5 text-[11px] font-bold text-white hover:bg-[var(--primary)] transition shadow-sm">Aplicar Sugestão</button>`
         }
       </td>
     </tr>`;
   }).join('');
 
-  const avgScore = filtered.length > 0 ? (scoreSum / filtered.length).toFixed(1) : '10.0';
-  if(document.getElementById('kpi-score')) document.getElementById('kpi-score').innerText = avgScore;
-  if(document.getElementById('kpi-pending')) document.getElementById('kpi-pending').innerText = `${pendingCount} Itens`;
-  if(document.getElementById('kpi-critical')) document.getElementById('kpi-critical').innerText = `${criticalCount} Itens`;
-  if(document.getElementById('kpi-loss')) document.getElementById('kpi-loss').innerText = brl(totalLoss);
-  if(document.getElementById('banner-title')) {
+  if (document.getElementById('kpi-score')) document.getElementById('kpi-score').innerText = '8.2';
+  if (document.getElementById('kpi-pending')) document.getElementById('kpi-pending').innerText = `${pendingCount} Itens`;
+  if (document.getElementById('kpi-critical')) document.getElementById('kpi-critical').innerText = `${criticalCount} Itens`;
+  if (document.getElementById('kpi-loss')) document.getElementById('kpi-loss').innerText = brl(totalLoss);
+  if (document.getElementById('banner-title')) {
     document.getElementById('banner-title').innerText = pendingCount > 0 
       ? `${pendingCount} produtos fora da margem ou precisando de giro!` 
       : 'Todos os produtos estão otimizados!';
   }
 }
 
-// NOVA FUNÇÃO: Renderizar tabela de produtos (necessária)
 function renderProductsTable() {
   const tbody = document.getElementById('products-table-body');
   if (!tbody) return;
 
-  tbody.innerHTML = products.map(p => {
+  const searchQuery = document.getElementById('search')?.value.toLowerCase() || '';
+  const filtered = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery) || p.ean.includes(searchQuery)
+  );
+
+  tbody.innerHTML = filtered.map(p => {
     const ev = evaluateProduct(p);
     return `<tr class="border-b border-theme hover:bg-secondary/40 transition">
-      <td class="py-3 px-2 text-sm">${p.name}</td>
-      <td class="py-3 px-2 text-sm text-muted">${p.ean}</td>
+      <td class="py-3 px-2 text-sm font-medium">${p.name}<br><span class="text-muted text-[10px]">EAN: ${p.ean}</span></td>
       <td class="py-3 px-2 text-sm">${p.cat}</td>
       <td class="py-3 px-2 text-sm font-bold">${brl(p.costCurr)}</td>
       <td class="py-3 px-2 text-sm font-bold">${brl(p.priceCurr)}</td>
-      <td class="py-3 px-2 text-sm">
-        <span class="rounded px-2 py-1 text-[11px] font-bold ${ev.expCls}">${ev.expStatus}</span>
-      </td>
+      <td class="py-3 px-2 text-sm text-muted">${p.daysToExpiry}d / ${p.salesGiro}/mês</td>
       <td class="py-3 px-2 text-right">
         <button onclick="openModal(${p.id})" class="text-blue-500 hover:underline text-[11px] font-bold">Editar</button>
         <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:underline text-[11px] font-bold ml-2">Apagar</button>
@@ -154,19 +212,27 @@ function renderCharts() {
             data: [23.5, 25.0, 26.2, 28.4],
             borderColor: isDark ? '#a7f3d0' : '#1b4332',
             backgroundColor: isDark ? 'rgba(167,243,208,0.15)' : 'rgba(27,67,50,0.12)',
-            fill: true, tension: 0.4, borderWidth: 2
+            fill: true, 
+            tension: 0.4, 
+            borderWidth: 2
           },
           {
             label: 'Sem Reajuste',
             data: [23.5, 22.0, 20.4, 18.9],
             borderColor: isDark ? '#f87171' : '#c0392b',
-            borderDash: [4, 4], tension: 0.4, borderWidth: 2, pointRadius: 0
+            borderDash: [4, 4], 
+            tension: 0.4, 
+            borderWidth: 2, 
+            pointRadius: 0
           }
         ]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: textColor } } },
+        responsive: true, 
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { labels: { color: textColor } } 
+        },
         scales: {
           x: { ticks: { color: textColor }, grid: { display: false } },
           y: { ticks: { color: textColor }, grid: { color: gridColor, borderDash: [3,3] } }
@@ -180,9 +246,9 @@ function renderCharts() {
     if (analyticsChartInstance) analyticsChartInstance.destroy();
     const sortedProducts = [...products].sort((a,b) => a.daysToExpiry - b.daysToExpiry);
     const barColors = sortedProducts.map(p => {
-        if(p.daysToExpiry < 10) return '#c0392b';
-        if(p.daysToExpiry <= 30) return '#f9a825';
-        return '#2e8b57';
+      if (p.daysToExpiry < 10) return '#c0392b';
+      if (p.daysToExpiry <= 30) return '#f9a825';
+      return '#2e8b57';
     });
 
     analyticsChartInstance = new Chart(ctxA, {
@@ -197,10 +263,15 @@ function renderCharts() {
         }]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
+        responsive: true, 
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { afterLabel: (ctx) => `Validade: ${sortedProducts[ctx.dataIndex].daysToExpiry} dias` } }
+          tooltip: { 
+            callbacks: { 
+              afterLabel: (ctx) => `Validade: ${sortedProducts[ctx.dataIndex].daysToExpiry} dias` 
+            } 
+          }
         },
         scales: {
           x: { ticks: { color: textColor }, grid: { display: false } },
@@ -216,7 +287,10 @@ function renderCharts() {
 // ==========================================
 function showNotice(msg) {
   const el = document.getElementById('notice');
-  if(!el) { alert(msg); return; }
+  if (!el) { 
+    alert(msg); 
+    return; 
+  }
   el.textContent = msg;
   el.classList.remove('hidden');
   setTimeout(() => el.classList.remove('opacity-0'), 10);
@@ -228,7 +302,13 @@ function showNotice(msg) {
 
 function applyOne(id) {
   products = products.map(p => {
-    if(p.id === id) return { ...p, priceCurr: calculateSuggPrice(p.costCurr, p.marginMeta, p.daysToExpiry, p.cat), estimatedWeeklyLoss: 0 };
+    if (p.id === id) {
+      return { 
+        ...p, 
+        priceCurr: calculateSuggPrice(p.costCurr, p.marginMeta, p.daysToExpiry, p.cat), 
+        estimatedWeeklyLoss: 0 
+      };
+    }
     return p;
   });
   saveProducts();
@@ -237,14 +317,18 @@ function applyOne(id) {
 }
 
 function applyAll() {
-  products = products.map(p => ({ ...p, priceCurr: calculateSuggPrice(p.costCurr, p.marginMeta, p.daysToExpiry, p.cat), estimatedWeeklyLoss: 0 }));
+  products = products.map(p => ({ 
+    ...p, 
+    priceCurr: calculateSuggPrice(p.costCurr, p.marginMeta, p.daysToExpiry, p.cat), 
+    estimatedWeeklyLoss: 0 
+  }));
   saveProducts();
   renderDashboardTable();
   showNotice('Todos os reajustes foram aplicados (Lote).');
 }
 
 function deleteProduct(id) {
-  if(confirm('Tem certeza que deseja apagar este produto?')) {
+  if (confirm('Tem certeza que deseja apagar este produto?')) {
     products = products.filter(p => p.id !== id);
     saveProducts();
     renderProductsTable();
@@ -254,21 +338,23 @@ function deleteProduct(id) {
 
 function openModal(id = null) {
   const m = document.getElementById('product-modal');
-  if(!m) return;
+  if (!m) return;
   m.classList.remove('hidden');
   document.getElementById('product-form').reset();
   
-  if(id) {
+  if (id) {
     const p = products.find(x => x.id === id);
-    document.getElementById('modal-title').innerText = 'Editar Produto';
-    document.getElementById('form-id').value = p.id;
-    document.getElementById('form-name').value = p.name;
-    document.getElementById('form-ean').value = p.ean;
-    document.getElementById('form-cat').value = p.cat;
-    document.getElementById('form-cost').value = p.costCurr;
-    document.getElementById('form-price').value = p.priceCurr;
-    document.getElementById('form-expiry').value = p.daysToExpiry;
-    document.getElementById('form-giro').value = p.salesGiro;
+    if (p) {
+      document.getElementById('modal-title').innerText = 'Editar Produto';
+      document.getElementById('form-id').value = p.id;
+      document.getElementById('form-name').value = p.name;
+      document.getElementById('form-ean').value = p.ean;
+      document.getElementById('form-cat').value = p.cat;
+      document.getElementById('form-cost').value = p.costCurr;
+      document.getElementById('form-price').value = p.priceCurr;
+      document.getElementById('form-expiry').value = p.daysToExpiry;
+      document.getElementById('form-giro').value = p.salesGiro;
+    }
   } else {
     document.getElementById('modal-title').innerText = 'Adicionar Produto';
     document.getElementById('form-id').value = '';
@@ -277,7 +363,7 @@ function openModal(id = null) {
 
 function closeModal() {
   const m = document.getElementById('product-modal');
-  if(m) m.classList.add('hidden');
+  if (m) m.classList.add('hidden');
 }
 
 document.getElementById('product-form')?.addEventListener('submit', (e) => {
@@ -298,14 +384,25 @@ document.getElementById('product-form')?.addEventListener('submit', (e) => {
   };
 
   if (id) {
-    products = products.map(p => p.id == id ? { ...p, ...pData, costPrev: p.costCurr !== pData.costCurr ? p.costCurr : p.costPrev } : p);
+    products = products.map(p => 
+      p.id == id 
+        ? { ...p, ...pData, costPrev: p.costCurr !== pData.costCurr ? p.costCurr : p.costPrev } 
+        : p
+    );
   } else {
-    products.push({ id: Date.now(), costPrev: pData.costCurr, estimatedWeeklyLoss: 0, stock: 100, ...pData });
+    products.push({ 
+      id: Date.now(), 
+      costPrev: pData.costCurr, 
+      estimatedWeeklyLoss: 0, 
+      stock: 100, 
+      ...pData 
+    });
   }
   
   saveProducts();
   closeModal();
   renderProductsTable();
+  renderDashboardTable();
   showNotice(id ? 'Produto atualizado.' : 'Novo produto adicionado.');
 });
 
