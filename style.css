@@ -36,6 +36,7 @@
   --sidebar-primary: #264739;
   --sidebar-accent: rgba(255,255,255,0.08);
   --input: rgba(255,255,255,0.1);
+  .login-bg-theme {  background-color: #0b1912; }
 }
 
 body { background: var(--bg); color: var(--fg); font-family: 'Inter', sans-serif; }
@@ -59,6 +60,7 @@ body { background: var(--bg); color: var(--fg); font-family: 'Inter', sans-serif
 .text-warning-theme { color: #b07800; }
 .dark .text-warning-theme { color: #f9a825; }
 .bg-input-theme { background: var(--input); }
+.login-bg-theme {  background-color: #f1f5f9;}
 
 .sidebar-active { background: var(--sidebar-primary); color: #fff; }
 .sidebar-active svg { color: var(--accent); }
