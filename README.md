@@ -30,9 +30,6 @@ Sistema de gestão inteligente para precificação no setor varejista. O objetiv
 
 1. Acesse: 
    * [Acesse o Precifica.IA](https://jvfraga01.github.io/Projeto-Appjam/)
-2. Abra o projeto no VS Code e utilize a extensão *Live Server* para rodar a aplicação localmente:
-   * Clique com o botão direito no arquivo `login.html`.
-   * Selecione "Open with Live Server".
-3. Utilize as credenciais de acesso para testes:
+2. Utilize as credenciais de acesso para testes:
    * **E-mail:** `gestor@supermercado.com.br`
    * **Senha:** `123456`
