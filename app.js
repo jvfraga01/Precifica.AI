@@ -4,7 +4,8 @@
 const defaultProducts = [
   { id: 1, ean: "7891000100103", name: "Leite Integral 1L", cat: "Laticínios", costPrev: 3.0, costCurr: 3.45, priceCurr: 4.2, priceSugg: 4.89, marginMeta: 28.0, stock: 120, salesGiro: 450, daysToExpiry: 15, estimatedWeeklyLoss: 310.5 },
   { id: 2, ean: "7891000200202", name: "Costela Bovina Ripa kg", cat: "Açougue", costPrev: 18.2, costCurr: 19.5, priceCurr: 24.9, priceSugg: 24.0, marginMeta: 35.0, stock: 45, salesGiro: 120, daysToExpiry: 2, estimatedWeeklyLoss: 0 },
-  { id: 3, ean: "7891000300301", name: "Arroz Branco 5kg", cat: "Mercearia", costPrev: 16.5, costCurr: 18.0, priceCurr: 22.5, priceSugg: 25.7, marginMeta: 30.0, stock: 210, salesGiro: 520, daysToExpiry: 180, estimatedWeeklyLoss: 44.5 }
+  { id: 3, ean: "7891000300301", name: "Arroz Branco 5kg", cat: "Mercearia", costPrev: 16.5, costCurr: 18.0, priceCurr: 22.5, priceSugg: 25.7, marginMeta: 30.0, stock: 210, salesGiro: 520, daysToExpiry: 180, estimatedWeeklyLoss: 44.5 },
+  { id: 4, ean: "7891000400400", name: "Óleo de Soja 900ml", cat: "Mercearia", costPrev: 5.1, costCurr: 5.1, priceCurr: 6.8, priceSugg: 7.28, marginMeta: 30.0, stock: 140, salesGiro: 340, daysToExpiry: 120, estimatedWeeklyLoss: 0.0 }
 ];
 
 let products = JSON.parse(localStorage.getItem('precifica_db')) || defaultProducts;
@@ -21,7 +22,7 @@ const brl = (v) => `R$ ${v.toFixed(2).replace('.', ',')}`;
 function calculateSuggPrice(cost, margin, daysToExpiry, category) {
   let basePrice = cost / (1 - (margin / 100));
   if (daysToExpiry <= 3 && ['Açougue', 'Laticínios', 'Hortifrúti'].includes(category)) {
-    return basePrice * 0.8;
+    return basePrice * 0.8; // Desconto automático para perecíveis
   }
   return basePrice;
 }
@@ -35,15 +36,21 @@ function evaluateProduct(p) {
   if (p.daysToExpiry < 10) { expStatus = 'Crítico'; expCls = 'bg-destructive-theme text-destructive-theme'; } 
   else if (p.daysToExpiry <= 30) { expStatus = 'Atenção'; expCls = 'bg-warning-theme text-warning-theme'; }
 
-  return { currentMargin, costIncrease, expStatus, expCls };
+  // Cálculo do Score da IA
+  let score = 10;
+  if (p.priceCurr < p.priceSugg && p.daysToExpiry > 10) score -= 3;
+  if (costIncrease > 5) score -= 2;
+  if (p.daysToExpiry < 10) score -= 4;
+
+  return { score, currentMargin, costIncrease, expStatus, expCls };
 }
 
 // ==========================================
-// 3. RENDERIZAÇÃO DAS TABELAS (Atualizado para atualizar os Cards)
+// 3. RENDERIZAÇÃO DAS TABELAS
 // ==========================================
 function renderDashboardTable() {
   const tbody = document.getElementById('dashboard-table-body');
-  if (!tbody) return; // Só executa se estiver no index.html
+  if (!tbody) return; // Só executa se a tabela existir na tela atual
 
   const searchQuery = document.getElementById('search')?.value.toLowerCase() || '';
   const filtered = products.filter(p => p.name.toLowerCase().includes(searchQuery) || p.ean.includes(searchQuery));
@@ -58,10 +65,9 @@ function renderDashboardTable() {
     const isUpdated = Math.abs(p.priceCurr - p.priceSugg) < 0.05;
     const isDiscount = p.priceSugg < p.priceCurr;
     
-    // Atualiza contadores para os Cards
     if (!isUpdated) pendingCount++;
     if (ev.expStatus === 'Crítico') criticalCount++;
-    if (!isUpdated) totalLoss += p.estimatedWeeklyLoss;
+    if (!isUpdated) totalLoss += (p.estimatedWeeklyLoss || 0);
     scoreSum += ev.score;
 
     let warningBadge = p.daysToExpiry < 10 
@@ -96,7 +102,7 @@ function renderDashboardTable() {
     </tr>`;
   }).join('');
 
-  // Preenche os 4 Cards com os valores somados e atualizados
+  // Atualiza os KPIs na Dashboard
   const avgScore = filtered.length > 0 ? (scoreSum / filtered.length).toFixed(1) : '10.0';
   if(document.getElementById('kpi-score')) document.getElementById('kpi-score').innerText = avgScore;
   if(document.getElementById('kpi-pending')) document.getElementById('kpi-pending').innerText = `${pendingCount} Itens`;
@@ -107,6 +113,32 @@ function renderDashboardTable() {
       ? `${pendingCount} produtos fora da margem ou precisando de giro!` 
       : 'Todos os produtos estão otimizados!';
   }
+}
+
+function renderProductsTable() {
+  const tbody = document.getElementById('products-table-body');
+  if (!tbody) return;
+
+  const searchQuery = document.getElementById('search')?.value.toLowerCase() || '';
+  const filtered = products.filter(p => p.name.toLowerCase().includes(searchQuery) || p.ean.includes(searchQuery));
+
+  tbody.innerHTML = filtered.map(p => {
+    const ev = evaluateProduct(p);
+    return `<tr class="transition hover:bg-secondary/40 border-b border-theme">
+      <td class="p-3"><p class="font-bold">${p.name}</p><p class="text-[10px] text-muted">EAN: ${p.ean}</p></td>
+      <td class="p-3"><span class="font-semibold">${p.cat}</span><p class="text-[10px] text-muted">Markup: ${p.marginMeta}%</p></td>
+      <td class="p-3 font-semibold">${brl(p.costCurr)}</td>
+      <td class="p-3 font-bold">${brl(p.priceCurr)}</td>
+      <td class="p-3">
+        <span class="rounded px-2 py-0.5 text-[10px] font-bold ${ev.expCls}">${p.daysToExpiry} dias</span>
+        <p class="text-[10px] text-muted mt-1">Giro: ${p.salesGiro}/mês</p>
+      </td>
+      <td class="p-3 text-right">
+        <button onclick="openModal(${p.id})" class="mr-2 p-1.5 rounded-lg bg-secondary border border-theme text-primary-theme font-bold hover:bg-primary-theme hover:text-white transition">Editar</button>
+        <button onclick="deleteProduct(${p.id})" class="p-1.5 rounded-lg bg-secondary border border-theme text-destructive-theme font-bold hover:bg-destructive-theme hover:text-white transition">Excluir</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
 // ==========================================
@@ -120,7 +152,6 @@ function renderCharts() {
   const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
   const textColor = isDark ? '#94a3b8' : '#6b7d73';
 
-  // Gráfico Dashboard
   const ctxM = document.getElementById('marginChart');
   if (ctxM) {
     if (marginChartInstance) marginChartInstance.destroy();
@@ -155,7 +186,6 @@ function renderCharts() {
     });
   }
 
-  // Gráfico Analytics
   const ctxA = document.getElementById('analyticsChart');
   if (ctxA) {
     if (analyticsChartInstance) analyticsChartInstance.destroy();
@@ -193,7 +223,7 @@ function renderCharts() {
 }
 
 // ==========================================
-// 5. AÇÕES DO SISTEMA E CRUD
+// 5. AÇÕES DO SISTEMA (ESCOPO GLOBAL)
 // ==========================================
 function showNotice(msg) {
   const el = document.getElementById('notice');
@@ -261,61 +291,71 @@ function closeModal() {
   if(m) m.classList.add('hidden');
 }
 
-document.getElementById('product-form')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const id = document.getElementById('form-id').value;
-  const cat = document.getElementById('form-cat').value;
-  let meta = cat === 'Açougue' ? 35 : (cat === 'Laticínios' ? 28 : 30);
-
-  const pData = {
-    name: document.getElementById('form-name').value,
-    ean: document.getElementById('form-ean').value,
-    cat: cat,
-    costCurr: parseFloat(document.getElementById('form-cost').value),
-    priceCurr: parseFloat(document.getElementById('form-price').value),
-    daysToExpiry: parseInt(document.getElementById('form-expiry').value),
-    salesGiro: parseInt(document.getElementById('form-giro').value),
-    marginMeta: meta,
-  };
-
-  if (id) {
-    products = products.map(p => p.id == id ? { ...p, ...pData, costPrev: p.costCurr !== pData.costCurr ? p.costCurr : p.costPrev } : p);
-  } else {
-    products.push({ id: Date.now(), costPrev: pData.costCurr, estimatedWeeklyLoss: 0, stock: 100, ...pData });
-  }
-  
-  saveProducts();
-  closeModal();
-  renderProductsTable();
-  showNotice(id ? 'Produto atualizado.' : 'Novo produto adicionado.');
-});
-
-// ==========================================
-// 6. TEMA E INICIALIZAÇÃO
-// ==========================================
 function updateThemeIcons(isDark) {
   document.getElementById('icon-moon')?.classList.toggle('hidden', isDark);
   document.getElementById('icon-sun')?.classList.toggle('hidden', !isDark);
 }
 
-document.getElementById('theme-toggle')?.addEventListener('click', () => {
-  document.documentElement.classList.toggle('dark');
-  const isDark = document.documentElement.classList.contains('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  updateThemeIcons(isDark);
-  if (typeof renderCharts === 'function') renderCharts();
-});
 
-document.getElementById('search')?.addEventListener('input', () => {
-  renderDashboardTable();
-  renderProductsTable();
-});
-
+// ==========================================
+// 6. INICIALIZAÇÃO SEGURA (DEPOIS DO HTML)
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+  
+  // 1. Aplica o Tema Inicial
   const isDark = document.documentElement.classList.contains('dark');
   updateThemeIcons(isDark);
 
+  // 2. Renderiza as Tabelas e Gráficos
   renderDashboardTable();
   renderProductsTable();
-  setTimeout(renderCharts, 50); 
+  setTimeout(renderCharts, 50);
+
+  // 3. Registra os Event Listeners Fixos da Tela
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    const isDarkNow = document.documentElement.classList.contains('dark');
+    localStorage.setItem('theme', isDarkNow ? 'dark' : 'light');
+    updateThemeIcons(isDarkNow);
+    if (typeof renderCharts === 'function') renderCharts();
+  });
+
+  document.getElementById('search')?.addEventListener('input', () => {
+    renderDashboardTable();
+    renderProductsTable();
+  });
+
+  document.getElementById('form-config')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    showNotice('Configurações salvas com sucesso.');
+  });
+
+  document.getElementById('product-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const id = document.getElementById('form-id').value;
+    const cat = document.getElementById('form-cat').value;
+    let meta = cat === 'Açougue' ? 35 : (cat === 'Laticínios' ? 28 : 30);
+
+    const pData = {
+      name: document.getElementById('form-name').value,
+      ean: document.getElementById('form-ean').value,
+      cat: cat,
+      costCurr: parseFloat(document.getElementById('form-cost').value),
+      priceCurr: parseFloat(document.getElementById('form-price').value),
+      daysToExpiry: parseInt(document.getElementById('form-expiry').value),
+      salesGiro: parseInt(document.getElementById('form-giro').value),
+      marginMeta: meta,
+    };
+
+    if (id) {
+      products = products.map(p => p.id == id ? { ...p, ...pData, costPrev: p.costCurr !== pData.costCurr ? p.costCurr : p.costPrev } : p);
+    } else {
+      products.push({ id: Date.now(), costPrev: pData.costCurr, estimatedWeeklyLoss: 0, stock: 100, ...pData });
+    }
+    
+    saveProducts();
+    closeModal();
+    renderProductsTable();
+    showNotice(id ? 'Produto atualizado.' : 'Novo produto adicionado.');
+  });
 });
