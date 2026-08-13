@@ -30,7 +30,7 @@ Sistema de gestão inteligente para precificação no setor varejista. O objetiv
 
 1. Clone o repositório:
    ```bash
-   git clone [url-do-seu-repositorio]
+   git clone [https://github.com/jvfraga01/Projeto-Appjam.git]
 2. Abra o projeto no VS Code e utilize a extensão *Live Server* para rodar a aplicação localmente:
    * Clique com o botão direito no arquivo `login.html`.
    * Selecione "Open with Live Server".
