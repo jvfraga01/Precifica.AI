@@ -60,7 +60,7 @@ body { background: var(--bg); color: var(--fg); font-family: 'Inter', sans-serif
 .text-warning-theme { color: #b07800; }
 .dark .text-warning-theme { color: #f9a825; }
 .bg-input-theme { background: var(--input); }
-.login-bg-theme {  background-color: #f1f5f9;}
+.login-bg-theme {  background-color: ##557C69;}
 
 .sidebar-active { background: var(--sidebar-primary); color: #fff; }
 .sidebar-active svg { color: var(--accent); }
