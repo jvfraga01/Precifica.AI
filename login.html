@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Precifica.IA</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { brand: { deep: '#0f291e', light: '#1b4332' }, success: '#2e8b57', accent: '#f9a825' } } } }
+  </script>
+</head>
+<body class="antialiased min-h-screen flex items-center justify-center bg-[var(--bg)] text-[var(--fg)] relative">
+
+  <!-- Botão de Tema no Canto -->
+  <button id="theme-toggle" type="button" title="Alternar Tema" class="absolute top-6 right-6 rounded-full border border-theme bg-card p-2 text-muted transition hover:bg-secondary shadow-sm">
+    <svg id="icon-moon" class="size-5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    <svg id="icon-sun" class="size-5 hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+  </button>
+
+  <div class="w-full max-w-md p-8 rounded-3xl bg-card border border-theme shadow-2xl mx-4">
+    <div class="flex flex-col items-center mb-8">
+      <img src="logo.png" alt="Precifica AI" class="h-16 object-contain mb-4" />
+      <h2 class="text-2xl font-bold">Bem-vindo de volta!</h2>
+      <p class="text-sm text-muted mt-1">Faça login para acessar o painel preditivo.</p>
+    </div>
+
+    <form id="login-form" class="space-y-5">
+      <div>
+        <label class="block text-sm font-bold mb-1.5">E-mail corporativo</label>
+        <input type="email" id="login-email" required placeholder="gestor@supermercado.com.br" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1.5">Senha</label>
+        <input type="password" id="login-password" required placeholder="••••••••" class="w-full rounded-xl bg-input-theme px-4 py-3 text-sm outline-none border border-theme focus:ring-2 focus:ring-[var(--primary)] transition" />
+      </div>
+      
+      <div class="flex items-center justify-between text-xs">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" class="rounded text-primary-theme focus:ring-primary-theme accent-[var(--primary)]" />
+          <span class="font-medium">Lembrar-me</span>
+        </label>
+        <a href="#" class="font-bold text-primary-theme hover:underline">Esqueceu a senha?</a>
+      </div>
+
+      <button type="submit" class="w-full rounded-xl bg-[var(--primary)] py-3 text-sm font-bold text-white shadow-md hover:opacity-90 transition mt-2">
+        Entrar no Sistema
+      </button>
+    </form>
+
+    <p class="text-center text-xs text-muted font-medium mt-8">
+      Ainda não tem acesso? 
+      <a href="cadastro.html" class="font-bold text-accent-theme hover:underline">Solicite sua conta</a>
+    </p>
+  </div>
+
+  <div id="notice" class="fixed bottom-6 left-1/2 z-50 hidden -translate-x-1/2 rounded-lg bg-[var(--fg)] px-6 py-3 text-center text-sm font-semibold text-[var(--bg)] shadow-xl transition-opacity opacity-0"></div>
+  
+  <script src="app.js"></script>
+</body>
+</html>
